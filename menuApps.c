@@ -74,7 +74,6 @@ int main(){
 			
 		}
 		else if(*resp == 'd' || *resp == 'D'){		 //caso o usuário escolha desisntalar um app
-			//system("cls");
 			printf("\nTodos os plicativos:\n");
 			imprimirTelas(pTelas);
 			printf("Qual o nome do aplicativo que deseja ser desinstalado? ");
@@ -95,7 +94,6 @@ int main(){
 			imprimirTelasOptativo(pTelas);
 		}
 		if(*resp != 'i'&&*resp != 'I'&&*resp != 'd'&&*resp != 'D'&&*resp != 's'&&*resp != 'S'&&*resp != 'v'&&*resp != 'V'){//verifica se foi inserido um valor válido de ação
-			//system("cls");
 			printf("\n Valor inserido inválido, tente novamente.\n");
 			system("pause");
 			system("cls");
@@ -107,8 +105,7 @@ int main(){
 	free(nomeApp);
 	return 0;
 }
-int numApps(struct telas *pTela){
-//conta o número de apps na tela e retorna
+int numApps(struct telas *pTela){   //conta o número de apps na tela e retorna
 	struct apps *p=pTela->pApps;
 	int cont=0;
 	while(p!=NULL){
@@ -117,28 +114,21 @@ int numApps(struct telas *pTela){
 	}
 	return cont;
 }
-struct apps *inserirApps(struct apps *a, char nome[50], struct telas *pTelas){
-//insere apps e cria novas telas, quando necessário
-	pTelas=encUltTela(pTelas);
-	//atualiza o ponteiro de tela pra ele apontar para o último elemento tela q foi inserido
+struct apps *inserirApps(struct apps *a, char nome[50], struct telas *pTelas){  //insere apps e cria novas telas, quando necessário
+	pTelas=encUltTela(pTelas);  //atualiza o ponteiro de tela pra ele apontar para o último elemento tela q foi inserido
 	struct apps *novoApp=NULL;
 	novoApp = (struct apps *)malloc(sizeof(struct apps));
 	strcpy(novoApp->nome, nome);
 	novoApp->proxApp=NULL;
 	novoApp->antApp=a;
-	if(a != NULL){
-	//caso não seja mais a primeira inserção, liga o app anterior com o novo
+	if(a != NULL){  	//caso não seja mais a primeira inserção, liga o app anterior com o novo
 		a->proxApp=novoApp;
 	}
-	if(numApps(pTelas)==4){
-	//conta quantos apps tem na tela, se tiver 4, uma nova tela é criada e o novo App é ligado a ela
-	//como app já foi ligado ao anterior ele entra no calculo, mas depois essa ligação é desfeita
-		pTelas = inserirTelas(pTelas, encUltTela(pTelas)->n+1);
-		//desfaz a ligação com o app da outra tela
+	if(numApps(pTelas)==4){ //conta quantos apps tem na tela, se tiver 4, uma nova tela é criada e o novo App é ligado a ela, como app já foi ligado ao anterior ele entra no calculo, mas depois essa ligação é desfeita
+		pTelas = inserirTelas(pTelas, encUltTela(pTelas)->n+1);//desfaz a ligação com o app da outra tela
 		novoApp->antApp=NULL;
-		a->proxApp=NULL;
-		//liga o app com a outra tela
-		pTelas->pApps = novoApp;
+		a->proxApp=NULL;	
+		pTelas->pApps = novoApp; //liga o app com a outra tela
 	}
 	else if(numApps(pTelas)==0){	//apenas o primeiro app inserido na tela é ligado a tela, mantendo a ordem de inserção
 		pTelas->pApps = novoApp;
@@ -146,69 +136,55 @@ struct apps *inserirApps(struct apps *a, char nome[50], struct telas *pTelas){
 		novoApp->pertenceTela=pTelas;		//liga o app com a tela
 	return novoApp;
 }
-struct apps *buscaAppsTela(struct telas *pTela, char nomeBuscado[50]){
-//busca por apps com determinado nome, se não existir retorna NULL
+struct apps *buscaAppsTela(struct telas *pTela, char nomeBuscado[50]){	//busca por apps com determinado nome, se não existir retorna NULL
 	struct telas *p=pTela;
 	struct apps *pontApps=NULL;
-	while(p!=NULL){
-		//laço q percorre todas as telas
+	while(p!=NULL){	//laço q percorre todas as telas
 		pontApps=p->pApps;
-		while(pontApps != NULL){
-			//laço que percorre todos os apps
-			if(strcmp(nomeBuscado, pontApps->nome) == 0){
-				//compara o nome de todos os apps com o nome buscado
+		while(pontApps != NULL){	//laço que percorre todos os apps
+			if(strcmp(nomeBuscado, pontApps->nome) == 0){	//compara o nome de todos os apps com o nome buscado
 				return pontApps;
 			}
 			pontApps=pontApps->proxApp;
 		}
 		p=p->antTela;	
-	}
-	//retorna o ponteiro NULL se percorreu tudo e não encontrou
+	}	//retorna o ponteiro NULL se percorreu tudo e não encontrou
 	return pontApps;
 }
-struct apps *removerApp(struct telas *pTelas, struct apps *pApp){
-//função que remove aplicativo, que foi mandado pela função de buscar apps
+struct apps *removerApp(struct telas *pTelas, struct apps *pApp){	//função que remove aplicativo, que foi mandado pela função de buscar apps
 	struct telas *pTelaAux=NULL;
 	struct apps *pAppAux=pApp;
 	
-	if(numApps(pTelas)==1 && pTelas->antTela == NULL && pTelas->proxTela == NULL){
-	//se foi removido o unico app da unica tela que existe
+	if(numApps(pTelas)==1 && pTelas->antTela == NULL && pTelas->proxTela == NULL){		//se foi removido o unico app da unica tela que existe
 		printf("\n\n  O aplicativo não poderá ser desinstalado, pois o sistema precisa ter pelo menos um aplicativo e uma tela\n\n");
 		return pTelas->pApps;
 	} 
 	else{
-		if(pApp->antApp == NULL){
-		//se for o primeiro app, que tá ligado com a tela
+		if(pApp->antApp == NULL){	//se for o primeiro app, que tá ligado com a tela
 			pTelaAux=pAppAux->pertenceTela;
 			pTelaAux->pApps=pAppAux->proxApp;
 
-			if(numApps(pAppAux->pertenceTela) == 0){
-			//se tiver só 1 app na tela é necessário desfazer a ligação da tela com o App e desfaz a ligação da tela com os outros app, já que vai ficar vazia sem esse app
-				
+			if(numApps(pAppAux->pertenceTela) == 0){	//se tiver só 1 app na tela é necessário desfazer a ligação da tela com o App e desfaz a ligação da tela com os outros app, já que vai ficar vazia sem esse app
 				struct telas *pontAuxTelaEsp=pTelaAux;		//pont auxiliar pra conseguir dar free e ainda ter como retornar uma tela  válida
 				pTelaAux= pontAuxTelaEsp->proxTela;		//guardo a tela de "antes" dessa tela para retornar para main
 				pontAuxTelaEsp=pAppAux->pertenceTela;		//desfaz as ligações da tela para poder liberar memória corretamente
 				pontAuxTelaEsp->pApps=NULL;	
 				pontAuxTelaEsp->proxTela->antTela=NULL;
-			
 				free(pAppAux);		//libera memória tanto da tela quanto do app
 				free(pontAuxTelaEsp);
 			}
-			else{
-			//se ainda tem mais app na tela, a ligação entre esses dois apps é desfeita
+			else{	//se ainda tem mais app na tela, a ligação entre esses dois apps é desfeita
 				pAppAux->proxApp->antApp=NULL;
 				free(pAppAux);
 			}
 		}
-		else if(pApp->antApp != NULL && pApp->proxApp != NULL ){
-			//se é o elemento do meio, que está com um app de cada lado
+		else if(pApp->antApp != NULL && pApp->proxApp != NULL ){	//se é o elemento do meio, que está com um app de cada lado
 			pTelaAux=pAppAux->pertenceTela;			//pega a tela que esse app tá
 			pAppAux->proxApp->antApp=pAppAux->antApp;		//desfaz as ligações, liga o app da frente ao app anterior a ele
 			pAppAux->antApp->proxApp=pAppAux->proxApp;		//liga o app anterior ao da frente
 			free(pAppAux);	
 		}
-		else if(pApp->proxApp == NULL){
-			//se for o último elemento de uma tela a ser removido
+		else if(pApp->proxApp == NULL){		//se for o último elemento de uma tela a ser removido
 			pTelaAux=pAppAux->pertenceTela;
 			pAppAux->antApp->proxApp=NULL;		//desfaz a ligação com app anterior
 			free(pAppAux);
@@ -218,8 +194,7 @@ struct apps *removerApp(struct telas *pTelas, struct apps *pApp){
 	}
 	return encontraUltApp(pTelaAux);	//retorna a ultimo app que tá na última tela, para a inserção de novos apps na posição certa, no caso, o primeiro q foi inserido, foi a forma pra deixar recursivo
 }
-struct apps *encontraUltApp(struct telas *pTelas){
-//encontra ultimo app da ultima tela enviada e retorna
+struct apps *encontraUltApp(struct telas *pTelas){	//encontra ultimo app da ultima tela enviada e retorna
 	struct apps *auxPApps=pTelas->pApps;
 	int cont=0;
 	while(auxPApps->proxApp != NULL){		//percorre todos os apps
@@ -228,62 +203,49 @@ struct apps *encontraUltApp(struct telas *pTelas){
 	}
 	return auxPApps;
 }
-struct telas *movimentaApps(struct telas *pTelas){
-////movimenta os aplitivos quando são removidos, ou seja, reorganiza a ordem dos apps(recursiva)
+struct telas *movimentaApps(struct telas *pTelas){		////movimenta os aplitivos quando são removidos, ou seja, reorganiza a ordem dos apps(recursiva)
 	struct telas *pTelaAux=pTelas;
 	struct telas *auxProxTela=NULL;
 	struct apps *appMovido=NULL;
 	if(pTelaAux->antTela == NULL){		//só para quando não houver mais telas
 		return pTelaAux;
-	}
-	//se tiver app na próxima tela, eles serão "movidos"
+	}		//se tiver app na próxima tela, eles serão "movidos"
 		auxProxTela = pTelaAux->antTela;
 		appMovido = auxProxTela->pApps;
 		
-		if(numApps(auxProxTela)==1){
-		//caso seja uma tela com apenas um app q tem q ser movido pra outra tela
-		//aqui muda as ligações da proxima tela, retira o primeiro elemento, logo esvazia a tela e libera memória
-			auxProxTela->pApps = NULL;
+		if(numApps(auxProxTela)==1){//caso seja uma tela com apenas um app q tem q ser movido pra outra tela 
+			auxProxTela->pApps = NULL; 	// muda as ligações da proxima tela, retira o primeiro elemento, logo esvazia a tela e libera memória
 			pTelaAux->antTela=NULL;
 			appMovido->pertenceTela=pTelaAux;	//o app agr aponta para a tela a qual está sendo movido, desfazendo todas as ligações que a tela anterior tinha
-			
 			free(auxProxTela);
 			appMovido->antApp= pTelaAux->pApps->proxApp;	//liga o app da outra tela com o ultimo da tela q tinha espaço vazio
 			pTelaAux->pApps->proxApp->proxApp=appMovido;	//liga o ultimo app com o app que está sendo movido para a tela anterior
-			
 			return pTelaAux;
-		}
-		//aqui muda as ligações da proxima tela, retira o primeiro elemento, se tiver mais apps
+		}//aqui muda as ligações da proxima tela, retira o primeiro elemento, se tiver mais apps
 		auxProxTela->pApps = appMovido->proxApp;
-		appMovido->proxApp->antApp=NULL;
-		
+		appMovido->proxApp->antApp=NULL;	
 		appMovido->proxApp=NULL;	//desfaz as ligações que o prório app tem com os apps da tela a qual pertencia
 		appMovido->antApp=NULL;
-		
 		//liga o app com a tela anterior
 		appMovido->antApp= pTelaAux->pApps->proxApp;	//liga o app da outra tela com o ultimo da tela q tinha espaço vazio
 		pTelaAux->pApps->proxApp->proxApp=appMovido;	//liga o ultimo app com o app que está sendo movido para a tela anterior
 		appMovido->pertenceTela=pTelaAux; 	//muda o campo da tela que o app movido pertence
-	
 		pTelaAux=auxProxTela;
 	return  movimentaApps(pTelaAux);
 }
-struct telas *inserirTelas(struct telas *l, int num){
-//insere telas
+struct telas *inserirTelas(struct telas *l, int num){	//insere tela
 	struct telas *novaTela=NULL;
 	novaTela = (struct telas *)malloc(sizeof(struct telas));
 	novaTela->proxTela=l;
 	novaTela->antTela=NULL;
 	novaTela->pApps=NULL;
 	novaTela->n=num;
-	if(l!=NULL){
-	//verifica se é a primeira insersão de telas, se não for liga a tela anterior com a nova
+	if(l!=NULL){	//verifica se é a primeira insersão de telas, se não for liga a tela anterior com a nova
 		l->antTela=novaTela;
 	}
 	return novaTela;
 }
-struct telas *encUltTela(struct telas *pTela){
-//encontra a ultima tela existente e retorna (recursiva)
+struct telas *encUltTela(struct telas *pTela){	//encontra a ultima tela existente e retorna (recursiva)
 	struct telas *pAuxTela=pTela;
 	if(pAuxTela->antTela == NULL){
 		return pAuxTela;
@@ -291,8 +253,7 @@ struct telas *encUltTela(struct telas *pTela){
 	pAuxTela = encUltTela(pAuxTela->antTela);
 	return pAuxTela;
 }
-void imprimirTelasOptativo(struct telas *l) {
-//imprime as telas podendo percorrer e escolher a direção(prox ou ant)
+void imprimirTelasOptativo(struct telas *l) {	//imprime as telas podendo percorrer e escolher a direção(prox ou ant)
     struct telas *pTelas = l;
     char comando;
     while (1) {
@@ -323,8 +284,7 @@ void imprimirTelasOptativo(struct telas *l) {
         system("cls");
     }
 }
-void *imprimeApenasAppsUmaTela(struct telas *l){
-//imprime os apps de uma única tela
+void *imprimeApenasAppsUmaTela(struct telas *l){	//imprime os apps de uma única tela
 	struct apps *pontApp=l->pApps;
 	while(pontApp != NULL){
 			printf(" - ");
@@ -333,8 +293,7 @@ void *imprimeApenasAppsUmaTela(struct telas *l){
 		}
 	return l;	//retorna a tela q foi imprimida	
 }
-void imprimirTelas(struct telas *l){
-//percorre todas as telas e imprime todos os apps
+void imprimirTelas(struct telas *l){	//percorre todas as telas e imprime todos os apps
 	struct telas *p=l;
 	struct apps *pontApp;
 	while(p!=NULL){
@@ -347,8 +306,7 @@ void imprimirTelas(struct telas *l){
 		p = p->antTela;
 	}	
 }
-void liberaMemTelas(struct telas *l){
-//percorre todos os apps e telas, libera memória após a execução, 
+void liberaMemTelas(struct telas *l){	//percorre todos os apps e telas, libera memória após a execução, 
 	struct telas *p=NULL;
 	struct apps *pontApps=NULL;
 	struct apps *auxPontApps=NULL;

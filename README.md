@@ -1,4 +1,4 @@
-							> Menu de aplicativos <
+				> Menu de aplicativos <
 
 - O objetivo do programa é simular um organizador de aplicativos para smartphones;
 
